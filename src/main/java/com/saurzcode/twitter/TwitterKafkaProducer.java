@@ -1,13 +1,7 @@
 package com.saurzcode.twitter;
 
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
-
 import com.google.common.collect.Lists;
+import com.saurzcode.twitter.config.TwitterKafkaConfig;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -15,60 +9,68 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.LongSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+/**
+ * Producer to read from twitter for a specifc term and put on Kafka Topic.
+ * Needs Twitter app configuration and access keys, token, and consumer key and secret to run.
+ */
 public class TwitterKafkaProducer {
 
-	private static final String topic = "twitter-topic";
 
-	public static void run(String consumerKey, String consumerSecret,
-			String token, String secret) throws InterruptedException {
+    private static void run(String consumerKey, String consumerSecret,
+                            String token, String secret, String term) {
 
-		Properties properties = new Properties();
-		properties.put("metadata.broker.list", "localhost:9092");
-		properties.put("serializer.class", "kafka.serializer.StringEncoder");
-		properties.put("client.id","camus");
-		ProducerConfig producerConfig = new ProducerConfig(properties);
-		kafka.javaapi.producer.Producer<String, String> producer = new kafka.javaapi.producer.Producer<String, String>(
-				producerConfig);
+        BlockingQueue<String> queue = new LinkedBlockingQueue<>(10000);
+        StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+        endpoint.trackTerms(Lists.newArrayList(
+                term));
 
-		BlockingQueue<String> queue = new LinkedBlockingQueue<String>(10000);
-		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-		// add some track terms
-		endpoint.trackTerms(Lists.newArrayList("twitterapi",
-				"#AAPSweep"));
+        Authentication auth = new OAuth1(consumerKey, consumerSecret, token,
+                secret);
 
-		Authentication auth = new OAuth1(consumerKey, consumerSecret, token,
-				secret);
-		// Authentication auth = new BasicAuth(username, password);
+        Client client = new ClientBuilder().hosts(Constants.STREAM_HOST)
+                .endpoint(endpoint).authentication(auth)
+                .processor(new StringDelimitedProcessor(queue)).build();
 
-		// Create a new BasicClient. By default gzip is enabled.
-		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST)
-				.endpoint(endpoint).authentication(auth)
-				.processor(new StringDelimitedProcessor(queue)).build();
 
-		// Establish a connection
-		client.connect();
+        client.connect();
+        try (Producer<Long, String> producer = getProducer()) {
+            while (true) {
+                ProducerRecord<Long, String> message = new ProducerRecord<>(TwitterKafkaConfig.TOPIC, queue.take());
+                producer.send(message);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            client.stop();
+        }
+    }
 
-		// Do whatever needs to be done with messages
-		for (int msgRead = 0; msgRead < 1000; msgRead++) {
-			KeyedMessage<String, String> message = null;
-			try {
-				message = new KeyedMessage<String, String>(topic, queue.take());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			producer.send(message);
-		}
-		producer.close();
-		client.stop();
+    private static Producer<Long, String> getProducer() {
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, TwitterKafkaConfig.SERVERS);
+        properties.put(ProducerConfig.ACKS_CONFIG, "1");
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, 500);
+        properties.put(ProducerConfig.RETRIES_CONFIG, 0);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return new KafkaProducer<>(properties);
+    }
 
-	}
+    public static void main(String[] args) {
 
-	public static void main(String[] args) {
-		try {
-			TwitterKafkaProducer.run(args[0], args[1], args[2], args[3]);
-		} catch (InterruptedException e) {
-			System.out.println(e);
-		}
-	}
+        //These should be passed in VM arguments for the application.
+        TwitterKafkaProducer.run(args[0], args[1], args[2], args[3], args[4]);
+
+    }
 }
