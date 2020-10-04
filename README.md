@@ -12,8 +12,7 @@ Oracle JDK 1.8 (64 bit )
 # How to Run
 Provide JVM Argument for TwitterKafkaProducer.java in following order
 
-java TwitterKafkaProducer.java <consumerKey>  <consumerSecret>
-                               			 <token>  <secret>  <hashtag/term>
+java TwitterKafkaProducer.java <consumer_key> <consumer_secret> <account_token> <account_secret> <hashtag/term>
                                			                               			 
 You can configure name of the topic in [TwittterKafkaConfig.java](src/main/java/com/saurzcode/twitter/config/TwitterKafkaConfig.java)
 # Build Environment :
