@@ -1,7 +1,7 @@
 # twitter-stream
 Twitter-Kafka Data Pipeline
 
-#Requirements :
+# Requirements :
 
 Apache Kafka 2.6.0
 Twitter Developer account ( for API Key, Secret etc.)
@@ -9,14 +9,14 @@ Apache Zookeeper ( required for Kafka)
 Oracle JDK 1.8 (64 bit )
 
 
-#How to Run
+# How to Run
 Provide JVM Argument for TwitterKafkaProducer.java in following order
 
 java TwitterKafkaProducer.java <consumerKey>  <consumerSecret>
                                			 <token>  <secret>  <hashtag/term>
                                			                               			 
 You can configure name of the topic in [TwittterKafkaConfig.java](src/main/java/com/saurzcode/twitter/config/TwitterKafkaConfig.java)
-#Build Environment :
+# Build Environment :
 Eclipse/Intellij
 Apache Maven 
 
