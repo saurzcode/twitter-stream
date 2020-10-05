@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/saurzcode/twitter-stream.svg?branch=master)](https://travis-ci.org/saurzcode/twitter-stream)
 # twitter-stream
 Twitter-Kafka Data Pipeline
 
