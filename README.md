@@ -1,4 +1,9 @@
 [![Build Status](https://travis-ci.org/saurzcode/twitter-stream.svg?branch=master)](https://travis-ci.org/saurzcode/twitter-stream)
+[![GitHub stars](https://img.shields.io/github/stars/saurzcode/twitter-stream.svg?style=social&label=Star&maxAge=2592000)](https://GitHub.com/saurzcode/twitter-stream/stargazers/)
+[![GitHub forks](https://img.shields.io/github/forks/saurzcode/twitter-stream.svg?style=social&label=Fork&maxAge=2592000)](https://GitHub.com/saurzcode/twitter-stream/network/)
+[![GitHub watchers](https://img.shields.io/github/watchers/saurzcode/twitter-stream.svg?style=social&label=Watch&maxAge=2592000)](https://GitHub.com/saurzcode/twitter-stream/watchers/)
+[![GitHub contributors](https://img.shields.io/github/contributors/saurzcode/twitter-stream.svg)](https://GitHub.com/saurzcode/twitter-stream/graphs/contributors/)
+
 # twitter-stream
 Twitter-Kafka Data Pipeline
 
