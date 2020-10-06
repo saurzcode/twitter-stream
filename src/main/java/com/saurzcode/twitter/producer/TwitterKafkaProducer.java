@@ -1,4 +1,4 @@
-package com.saurzcode.twitter;
+package com.saurzcode.twitter.producer;
 
 import com.google.common.collect.Lists;
 import com.saurzcode.twitter.config.TwitterKafkaConfig;
@@ -69,8 +69,16 @@ public class TwitterKafkaProducer {
 
     public static void main(String[] args) {
 
+        if (args.length != 5)
+            throw new IllegalArgumentException("Please Pass 5 arguments, in order - consumerKey, consumerSecret, token, secret, and term");
         //These should be passed in VM arguments for the application.
-        TwitterKafkaProducer.run(args[0], args[1], args[2], args[3], args[4]);
+        String consumerKey = args[0];
+        String consumerSecret = args[1];
+        String token = args[2];
+        String secret = args[3];
+        String term = args[4]; // term on twitter on which you want to filter the results on.
+
+        TwitterKafkaProducer.run(consumerKey, consumerSecret, token, secret, term);
 
     }
 }
