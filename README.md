@@ -18,9 +18,21 @@ Oracle JDK 1.8 (64 bit )
 # How to Run
 Provide JVM Argument for TwitterKafkaProducer.java in following order
 
+```
 java TwitterKafkaProducer.java <consumer_key> <consumer_secret> <account_token> <account_secret> <hashtag/term>
-                               			                               			 
-You can configure name of the topic in [TwittterKafkaConfig.java](src/main/java/com/saurzcode/twitter/config/TwitterKafkaConfig.java)
+```
+
+The topic and bootstrap servers for Kafka can be configured with option arguments. 
+If using SASL Auth to Kafka, also set username and password. See below for usage. 
+
+```
+usage: twitter-stream
+ -password <arg>   SASL Auth password
+ -servers <arg>    Comma separated list of Kafka bootstrap servers
+ -topic <arg>      Kafka topic
+ -username <arg>   SASL Auth username
+```
+
 # Build Environment :
 Eclipse/Intellij
 Apache Maven 
